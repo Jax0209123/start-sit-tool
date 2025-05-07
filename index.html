@@ -1,149 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Start/Sit Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 2rem;
+      background-color: #f8f9fa;
+      padding: 20px;
     }
     .container {
       max-width: 600px;
       margin: auto;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    select, input, button {
-      width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      font-size: 1rem;
-    }
-    .autocomplete-list {
-      border: 1px solid #ccc;
-      border-top: none;
-      max-height: 150px;
-      overflow-y: auto;
-      position: absolute;
-      background: #fff;
-      width: calc(100% - 4rem);
-      z-index: 100;
-    }
-    .autocomplete-item {
-      padding: 0.5rem;
-      cursor: pointer;
-    }
-    .autocomplete-item:hover {
-      background-color: #eee;
-    }
-    .result {
-      margin-top: 1rem;
-      background-color: #e0ffe0;
-      border: 1px solid #3c763d;
+      background: #ffffff;
+      padding: 20px;
       border-radius: 8px;
-      padding: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+    }
+    select, input[type="text"], button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      border: none;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Start/Sit Tool</h2>
+  <div class="container">
+    <h1>Start/Sit Tool</h1>
 
-  <label for="scoringSelect">Select Scoring Format:</label>
-  <select id="scoringSelect" onchange="loadScoringFile()">
-    <option value="">-- Select Format --</option>
-    <option value="big3.json">Big 3</option>
-    <option value="tackleHeavy.json">Tackle Heavy</option>
-    <option value="halfTackle.json">Half Tackle</option>
-  </select>
+    <label for="player1">Enter Player 1</label>
+    <input type="text" id="player1" placeholder="Enter Player 1's name">
 
-  <label for="player1">Player 1:</label>
-  <input type="text" id="player1" oninput="autocomplete(this)" autocomplete="off" />
-  <div id="autocomplete-player1" class="autocomplete-list"></div>
+    <label for="player2">Enter Player 2</label>
+    <input type="text" id="player2" placeholder="Enter Player 2's name">
 
-  <label for="player2">Player 2:</label>
-  <input type="text" id="player2" oninput="autocomplete(this)" autocomplete="off" />
-  <div id="autocomplete-player2" class="autocomplete-list"></div>
+    <label for="position">Select Player Position</label>
+    <select id="position">
+      <option value="rb">Running Back (RB)</option>
+      <option value="wr">Wide Receiver (WR)</option>
+      <option value="te">Tight End (TE)</option>
+    </select>
 
-  <button onclick="comparePlayers()">Compare</button>
+    <label for="scoring">Select Scoring Format</label>
+    <select id="scoring">
+      <option value="big3">Big 3</option>
+      <option value="tackleHeavy">Tackle Heavy</option>
+      <option value="lowImpact">Low Impact</option>
+    </select>
 
-  <div id="output" class="result" style="display: none;"></div>
-</div>
+    <button onclick="comparePlayers()">Compare Players</button>
 
-<script>
-  let projections = {};
-  let playerList = [];
+    <div id="result"></div>
+  </div>
 
-  async function loadScoringFile() {
-    const select = document.getElementById('scoringSelect');
-    const fileName = select.value;
-    if (!fileName) return;
-
-    try {
-      const response = await fetch(fileName);
+  <script>
+    async function loadJSON(file) {
+      const response = await fetch(file);
       const data = await response.json();
-      projections = data;
-      playerList = Object.keys(data);
-      alert(`Loaded ${fileName}. You can now enter player names.`);
-    } catch (error) {
-      console.error("Error loading scoring file:", error);
-      alert("Failed to load scoring file.");
-    }
-  }
-
-  function autocomplete(inputElement) {
-    const listId = 'autocomplete-' + inputElement.id;
-    const listContainer = document.getElementById(listId);
-    const value = inputElement.value.toLowerCase();
-
-    listContainer.innerHTML = '';
-
-    if (!projections || playerList.length === 0 || value.length < 1) return;
-
-    const matches = playerList.filter(name => name.toLowerCase().includes(value));
-    matches.slice(0, 10).forEach(match => {
-      const item = document.createElement('div');
-      item.textContent = match;
-      item.classList.add('autocomplete-item');
-      item.onclick = () => {
-        inputElement.value = match;
-        listContainer.innerHTML = '';
-      };
-      listContainer.appendChild(item);
-    });
-  }
-
-  function comparePlayers() {
-    const p1 = document.getElementById("player1").value;
-    const p2 = document.getElementById("player2").value;
-
-    if (!projections || !projections[p1] || !projections[p2]) {
-      alert("Please select two valid players after choosing a scoring format.");
-      return;
+      return data;
     }
 
-    const p1Proj = projections[p1];
-    const p2Proj = projections[p2];
-    const winner = p1Proj > p2Proj ? p1 : p2;
+    async function comparePlayers() {
+      const player1 = document.getElementById('player1').value;
+      const player2 = document.getElementById('player2').value;
+      const position = document.getElementById('position').value;
+      const scoring = document.getElementById('scoring').value;
 
-    const result = `
-      <strong>${winner}</strong> is the better start this week.<br><br>
-      ${p1}: ${p1Proj} projected points<br>
-      ${p2}: ${p2Proj} projected points
-    `;
+      let playersData = [];
+      let result = "";
 
-    const output = document.getElementById("output");
-    output.innerHTML = result;
-    output.style.display = "block";
-  }
-</script>
+      switch (scoring) {
+        case "big3":
+          playersData = await loadJSON('big3.json');
+          break;
+        case "tackleHeavy":
+          playersData = await loadJSON('tackleHeavy.json');
+          break;
+        case "lowImpact":
+          playersData = await loadJSON('lowImpact.json');
+          break;
+        default:
+          result = "Please select a valid scoring format.";
+          document.getElementById('result').innerHTML = result;
+          return;
+      }
+
+      const player1Data = playersData.find(player => player.name.toLowerCase() === player1.toLowerCase() && player.position === position);
+      const player2Data = playersData.find(player => player.name.toLowerCase() === player2.toLowerCase() && player.position === position);
+
+      if (!player1Data || !player2Data) {
+        result = "One or both players not found in the selected scoring format.";
+      } else {
+        if (player1Data.projection > player2Data.projection) {
+          result = `${player1} is the better choice to start over ${player2}.`;
+        } else if (player1Data.projection < player2Data.projection) {
+          result = `${player2} is the better choice to start over ${player1}.`;
+        } else {
+          result = `It's a close call! Both players have similar projections.`;
+        }
+      }
+
+      document.getElementById('result').innerHTML = result;
+    }
+  </script>
 
 </body>
 </html>

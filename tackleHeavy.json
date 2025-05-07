@@ -1,8 +1,17 @@
-{
-  "T.J. Watt": 17.6,
-  "Roquan Smith": 16.9,
-  "T.J. Edwards": 15.3,
-  "Nick Bolton": 14.2,
-  "Ernest Jones": 13.8,
-  "Fred Warner": 13.4
-}
+[
+  {
+    "name": "Derrick Henry",
+    "position": "rb",
+    "projection": 16.2
+  },
+  {
+    "name": "Davante Adams",
+    "position": "wr",
+    "projection": 19.1
+  },
+  {
+    "name": "Travis Kelce",
+    "position": "te",
+    "projection": 17.4
+  }
+]
