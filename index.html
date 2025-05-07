@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     select, input, button {
-      width: 90%;
+      width: 100%;
       padding: 0.75rem;
       margin: 0.5rem 0;
       font-size: 1rem;
@@ -31,7 +32,7 @@
       overflow-y: auto;
       position: absolute;
       background: #fff;
-      width:auto;
+      width: calc(100% - 4rem);
       z-index: 100;
     }
     .autocomplete-item {
@@ -90,7 +91,7 @@
       const data = await response.json();
       projections = data;
       playerList = Object.keys(data);
-      alert(`Loaded ${fileName}`);
+      alert(`Loaded ${fileName}. You can now enter player names.`);
     } catch (error) {
       console.error("Error loading scoring file:", error);
       alert("Failed to load scoring file.");
@@ -103,7 +104,8 @@
     const value = inputElement.value.toLowerCase();
 
     listContainer.innerHTML = '';
-    if (!playerList) return;
+
+    if (!projections || playerList.length === 0 || value.length < 1) return;
 
     const matches = playerList.filter(name => name.toLowerCase().includes(value));
     matches.slice(0, 10).forEach(match => {
