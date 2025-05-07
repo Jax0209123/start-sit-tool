@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Start/Sit Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    select, input, button {
+      width: 90%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+    .autocomplete-list {
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 150px;
+      overflow-y: auto;
+      position: absolute;
+      background: #fff;
+      width:auto;
+      z-index: 100;
+    }
+    .autocomplete-item {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .autocomplete-item:hover {
+      background-color: #eee;
+    }
+    .result {
+      margin-top: 1rem;
+      background-color: #e0ffe0;
+      border: 1px solid #3c763d;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Start/Sit Tool</h2>
+
+  <label for="scoringSelect">Select Scoring Format:</label>
+  <select id="scoringSelect" onchange="loadScoringFile()">
+    <option value="">-- Select Format --</option>
+    <option value="big3.json">Big 3</option>
+    <option value="tackleHeavy.json">Tackle Heavy</option>
+    <option value="halfTackle.json">Half Tackle</option>
+  </select>
+
+  <label for="player1">Player 1:</label>
+  <input type="text" id="player1" oninput="autocomplete(this)" autocomplete="off" />
+  <div id="autocomplete-player1" class="autocomplete-list"></div>
+
+  <label for="player2">Player 2:</label>
+  <input type="text" id="player2" oninput="autocomplete(this)" autocomplete="off" />
+  <div id="autocomplete-player2" class="autocomplete-list"></div>
+
+  <button onclick="comparePlayers()">Compare</button>
+
+  <div id="output" class="result" style="display: none;"></div>
+</div>
+
+<script>
+  let projections = {};
+  let playerList = [];
+
+  async function loadScoringFile() {
+    const select = document.getElementById('scoringSelect');
+    const fileName = select.value;
+    if (!fileName) return;
+
+    try {
+      const response = await fetch(fileName);
+      const data = await response.json();
+      projections = data;
+      playerList = Object.keys(data);
+      alert(`Loaded ${fileName}`);
+    } catch (error) {
+      console.error("Error loading scoring file:", error);
+      alert("Failed to load scoring file.");
+    }
+  }
+
+  function autocomplete(inputElement) {
+    const listId = 'autocomplete-' + inputElement.id;
+    const listContainer = document.getElementById(listId);
+    const value = inputElement.value.toLowerCase();
+
+    listContainer.innerHTML = '';
+    if (!playerList) return;
+
+    const matches = playerList.filter(name => name.toLowerCase().includes(value));
+    matches.slice(0, 10).forEach(match => {
+      const item = document.createElement('div');
+      item.textContent = match;
+      item.classList.add('autocomplete-item');
+      item.onclick = () => {
+        inputElement.value = match;
+        listContainer.innerHTML = '';
+      };
+      listContainer.appendChild(item);
+    });
+  }
+
+  function comparePlayers() {
+    const p1 = document.getElementById("player1").value;
+    const p2 = document.getElementById("player2").value;
+
+    if (!projections || !projections[p1] || !projections[p2]) {
+      alert("Please select two valid players after choosing a scoring format.");
+      return;
+    }
+
+    const p1Proj = projections[p1];
+    const p2Proj = projections[p2];
+    const winner = p1Proj > p2Proj ? p1 : p2;
+
+    const result = `
+      <strong>${winner}</strong> is the better start this week.<br><br>
+      ${p1}: ${p1Proj} projected points<br>
+      ${p2}: ${p2Proj} projected points
+    `;
+
+    const output = document.getElementById("output");
+    output.innerHTML = result;
+    output.style.display = "block";
+  }
+</script>
+
+</body>
+</html>
