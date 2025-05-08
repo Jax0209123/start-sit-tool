@@ -1,17 +1,17 @@
-[
-  {
-    "name": "Derrick Henry",
-    "position": "rb",
-    "projection": 18.5
+{
+  "Fred Warner": {
+    "position": "LB",
+    "team": "SF",
+    "projection": 17.5
   },
-  {
-    "name": "Davante Adams",
-    "position": "wr",
-    "projection": 20.3
-  },
-  {
-    "name": "Travis Kelce",
-    "position": "te",
-    "projection": 15.7
+  "Roquan Smith": {
+    "position": "LB",
+    "team": "BAL",
+    "projection": 18.2
   }
-]
+"Kyle Hamilton": {
+    "position": "LB",
+    "team": "BAL",
+    "projection": 15.2
+  }
+}
